@@ -1,27 +1,67 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
-import * as vscode from 'vscode';
+import * as vscode from 'vscode'
+import * as path from 'path'
+import * as replaceInFile from 'replace-in-file'
+import * as fs from 'fs'
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
+function createInput(): Thenable<string | undefined> {
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "cpp-file-renamer" is now active!');
-
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('cpp-file-renamer.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from cpp-file-renamer!');
-	});
-
-	context.subscriptions.push(disposable);
+	var options: vscode.InputBoxOptions = {
+		ignoreFocusOut: false,
+		placeHolder: "New header name ...",
+		prompt: "Type a new header name"
+	}
+	return vscode.window.showInputBox(options)
 }
 
-// this method is called when your extension is deactivated
-export function deactivate() {}
+function showInfoMsg(msg: string) {
+	vscode.window.showInformationMessage(msg)
+}
+
+function showErrorMsg(msg: string) {
+	vscode.window.showErrorMessage(msg)
+}
+
+export function activate(context: vscode.ExtensionContext) {
+
+	let disposable = vscode.commands.registerCommand('cpp-file-renamer.renameCppFile', (context) => {
+
+		if (context == undefined)
+			return
+
+		let filePath = path.normalize(context.fsPath)
+		let dirArray = filePath.split(path.sep)
+		let srcFolderIndex = dirArray.indexOf("src")
+		if (srcFolderIndex == -1) {
+			showErrorMsg("Cannot rename C++ file: No \"src\" parent directory")
+			return
+		}
+		let preSrcDirArray: string[] = []
+		for (let i = 0; i < srcFolderIndex; i++) {
+			preSrcDirArray.push(dirArray[i])
+		}
+
+		createInput().then(input => {
+
+			if (input == undefined)
+				return
+
+			let preSrcPath = preSrcDirArray.join(path.sep)
+			let fileExtension = path.extname(filePath)
+
+			let newFilename = `${input}${fileExtension}`
+			let newFilePath = `${path.dirname(filePath)}${path.sep}${newFilename}`
+
+			fs.renameSync(filePath, newFilePath)
+
+			replaceInFile.sync({
+				files: `${preSrcPath}/src/**`,
+				from: `${path.basename(filePath)}`,
+				to: `${newFilename}`
+			})
+		})
+	})
+
+	context.subscriptions.push(disposable)
+}
+
+export function deactivate() { }
