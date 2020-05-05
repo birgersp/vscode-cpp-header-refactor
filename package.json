@@ -1,4 +1,8 @@
 {
+	"publisher": "birgersp",
+	"repository": {
+		"url": "https://github.com/birgersp/vscode-cpp-class-renamer"
+	},
 	"name": "cpp-file-renamer",
 	"displayName": "cpp-file-renamer",
 	"description": "Rename C++ headers and update references and header guards easily",
