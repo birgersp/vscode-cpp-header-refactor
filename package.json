@@ -1,7 +1,7 @@
 {
 	"publisher": "birgersp",
 	"repository": {
-		"url": "https://github.com/birgersp/vscode-cpp-class-renamer"
+		"url": "https://github.com/birgersp/vscode-cpp-header-renamer"
 	},
 	"name": "cpp-header-renamer",
 	"displayName": "C++ Header Renamer",

@@ -1,4 +1,4 @@
-# [C++ Header Renamer](https://github.com/birgersp/vscode-cpp-class-renamer)
+# [C++ Header Renamer](https://github.com/birgersp/vscode-cpp-header-renamer)
 
 Renames your C++ header, updates references and header guards.
 
@@ -12,4 +12,4 @@ Enjoy! GitHub PRs and issues are welcome!
 
 ## Sources
 
-[GitHub](https://github.com/birgersp/vscode-cpp-class-renamer)
+[GitHub](https://github.com/birgersp/vscode-cpp-header-renamer)
