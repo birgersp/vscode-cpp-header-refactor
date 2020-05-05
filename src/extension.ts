@@ -46,17 +46,44 @@ export function activate(context: vscode.ExtensionContext) {
 				return
 
 			let preSrcPath = preSrcDirArray.join(path.sep)
+			let fileName = path.basename(filePath)
+			let fileNameNoExt = fileName.replace(/\..*/, "")
 			let fileExtension = path.extname(filePath)
 
 			let newFilename = `${input}${fileExtension}`
 			let newFilePath = `${path.dirname(filePath)}${path.sep}${newFilename}`
 
+			// If this is a header file
+			if (fileExtension == ".h" || fileExtension == ".hpp") {
+
+				// Update header guard
+				let headerGuardMacroSuffix = `_${fileExtension.replace(".", "").toUpperCase()}`
+				let headerGuardMacro = `${fileNameNoExt.toUpperCase()}${headerGuardMacroSuffix}`
+				let newHeaderGuardMacro = `${input.toUpperCase()}${headerGuardMacroSuffix}`
+				let regexp = new RegExp(headerGuardMacro, "g")
+				replaceInFile.sync({
+					files: filePath,
+					from: regexp,
+					to: newHeaderGuardMacro
+				})
+
+				// If corresponding .cpp file exists, rename it
+				let fileDir = path.dirname(filePath)
+				let cppFilePath = fileDir + path.sep + fileNameNoExt + ".cpp"
+				if (fs.existsSync(cppFilePath)) {
+					let newCppFilePath = fileDir + path.sep + input + ".cpp"
+					fs.renameSync(cppFilePath, newCppFilePath)
+				}
+			}
+
+			// Rename file
 			fs.renameSync(filePath, newFilePath)
 
+			// Update all references in files under "src/"
 			replaceInFile.sync({
 				files: `${preSrcPath}/src/**`,
-				from: `${path.basename(filePath)}`,
-				to: `${newFilename}`
+				from: fileName,
+				to: newFilename
 			})
 		})
 	})

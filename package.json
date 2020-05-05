@@ -1,8 +1,8 @@
 {
 	"name": "cpp-file-renamer",
 	"displayName": "cpp-file-renamer",
-	"description": "",
-	"version": "0.0.1",
+	"description": "Rename C++ headers and update references and header guards easily",
+	"version": "1.0.0",
 	"engines": {
 		"vscode": "^1.44.0"
 	},
