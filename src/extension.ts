@@ -23,16 +23,24 @@ function showErrorMsg(msg: string) {
 
 export function activate(context: vscode.ExtensionContext) {
 
-	let disposable = vscode.commands.registerCommand('cpp-file-renamer.renameCppFile', (context) => {
+	let disposable = vscode.commands.registerCommand('cpp-header-renamer.renameCppHeader', (context) => {
 
 		if (context == undefined)
 			return
 
 		let filePath = path.normalize(context.fsPath)
+		let fileExtension = path.extname(filePath)
+
+		// If not a header file
+		if (fileExtension != ".h" && fileExtension != ".hpp") {
+			showErrorMsg("Cannot rename: Header files (.h or .hpp) only")
+			return
+		}
+
 		let dirArray = filePath.split(path.sep)
 		let srcFolderIndex = dirArray.indexOf("src")
 		if (srcFolderIndex == -1) {
-			showErrorMsg("Cannot rename C++ file: No \"src\" parent directory")
+			showErrorMsg("Cannot rename C++ header: No \"src\" parent directory")
 			return
 		}
 		let preSrcDirArray: string[] = []
@@ -48,32 +56,26 @@ export function activate(context: vscode.ExtensionContext) {
 			let preSrcPath = preSrcDirArray.join(path.sep)
 			let fileName = path.basename(filePath)
 			let fileNameNoExt = fileName.replace(/\..*/, "")
-			let fileExtension = path.extname(filePath)
-
 			let newFilename = `${input}${fileExtension}`
 			let newFilePath = `${path.dirname(filePath)}${path.sep}${newFilename}`
 
-			// If this is a header file
-			if (fileExtension == ".h" || fileExtension == ".hpp") {
+			// Update header guard
+			let headerGuardMacroSuffix = `_${fileExtension.replace(".", "").toUpperCase()}`
+			let headerGuardMacro = `${fileNameNoExt.toUpperCase()}${headerGuardMacroSuffix}`
+			let newHeaderGuardMacro = `${input.toUpperCase()}${headerGuardMacroSuffix}`
+			let regexp = new RegExp(headerGuardMacro, "g")
+			replaceInFile.sync({
+				files: filePath,
+				from: regexp,
+				to: newHeaderGuardMacro
+			})
 
-				// Update header guard
-				let headerGuardMacroSuffix = `_${fileExtension.replace(".", "").toUpperCase()}`
-				let headerGuardMacro = `${fileNameNoExt.toUpperCase()}${headerGuardMacroSuffix}`
-				let newHeaderGuardMacro = `${input.toUpperCase()}${headerGuardMacroSuffix}`
-				let regexp = new RegExp(headerGuardMacro, "g")
-				replaceInFile.sync({
-					files: filePath,
-					from: regexp,
-					to: newHeaderGuardMacro
-				})
-
-				// If corresponding .cpp file exists, rename it
-				let fileDir = path.dirname(filePath)
-				let cppFilePath = fileDir + path.sep + fileNameNoExt + ".cpp"
-				if (fs.existsSync(cppFilePath)) {
-					let newCppFilePath = fileDir + path.sep + input + ".cpp"
-					fs.renameSync(cppFilePath, newCppFilePath)
-				}
+			// If corresponding .cpp file exists, rename it
+			let fileDir = path.dirname(filePath)
+			let cppFilePath = fileDir + path.sep + fileNameNoExt + ".cpp"
+			if (fs.existsSync(cppFilePath)) {
+				let newCppFilePath = fileDir + path.sep + input + ".cpp"
+				fs.renameSync(cppFilePath, newCppFilePath)
 			}
 
 			// Rename file

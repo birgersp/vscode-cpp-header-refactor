@@ -3,10 +3,10 @@
 	"repository": {
 		"url": "https://github.com/birgersp/vscode-cpp-class-renamer"
 	},
-	"name": "cpp-file-renamer",
-	"displayName": "cpp-file-renamer",
+	"name": "cpp-header-renamer",
+	"displayName": "C++ Header Renamer",
 	"description": "Rename C++ headers and update references and header guards easily",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"engines": {
 		"vscode": "^1.44.0"
 	},
@@ -14,20 +14,20 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:cpp-file-renamer.renameCppFile"
+		"onCommand:cpp-header-renamer.renameCppHeader"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "cpp-file-renamer.renameCppFile",
-				"title": "Rename C++ file"
+				"command": "cpp-header-renamer.renameCppHeader",
+				"title": "Rename C++ header"
 			}
 		],
 		"menus": {
 			"explorer/context": [
 				{
-					"command": "cpp-file-renamer.renameCppFile",
+					"command": "cpp-header-renamer.renameCppHeader",
 					"group": "cppcreator@1"
 				}
 			]
