@@ -28,7 +28,7 @@ export function activate(context: vscode.ExtensionContext) {
 		if (context == undefined)
 			return
 
-		let filePath = path.normalize(context.fsPath)
+		let filePath = context.fsPath
 		let fileExtension = path.extname(filePath)
 
 		// If not a header file
@@ -37,25 +37,13 @@ export function activate(context: vscode.ExtensionContext) {
 			return
 		}
 
-		let dirArray = filePath.split(path.sep)
-		let srcFolderIndex = dirArray.indexOf("src")
-		if (srcFolderIndex == -1) {
-			showErrorMsg("Cannot rename C++ header: No \"src\" parent directory")
-			return
-		}
-		let preSrcDirArray: string[] = []
-		for (let i = 0; i < srcFolderIndex; i++) {
-			preSrcDirArray.push(dirArray[i])
-		}
-
 		createInput().then(input => {
 
 			if (input == undefined)
 				return
 
-			let preSrcPath = preSrcDirArray.join(path.sep)
 			let fileName = path.basename(filePath)
-			let fileNameNoExt = fileName.replace(/\..*/, "")
+			let fileNameNoExt = fileName.replace(path.extname(filePath), "")
 			let newFilename = `${input}${fileExtension}`
 			let newFilePath = `${path.dirname(filePath)}${path.sep}${newFilename}`
 
@@ -70,11 +58,22 @@ export function activate(context: vscode.ExtensionContext) {
 				to: newHeaderGuardMacro
 			})
 
-			// If corresponding .cpp file exists, rename it
+			// Determine sub-directory (e.g. "include/myfolder/")
+			let srcDir: string
 			let fileDir = path.dirname(filePath)
-			let cppFilePath = fileDir + path.sep + fileNameNoExt + ".cpp"
+			let includeDir = vscode.workspace.rootPath + path.sep + "include"
+			if (includeDir == fileDir) {
+				srcDir = vscode.workspace.rootPath + path.sep + "src"
+			} else {
+				let substitution = path.normalize(includeDir + path.sep)
+				let subdir = path.normalize(fileDir).replace(substitution, "")
+				srcDir = vscode.workspace.rootPath + path.sep + "src" + path.sep + subdir
+			}
+
+			// If corresponding .cpp file exists, rename it
+			let cppFilePath = srcDir + path.sep + fileNameNoExt + ".cpp"
 			if (fs.existsSync(cppFilePath)) {
-				let newCppFilePath = fileDir + path.sep + input + ".cpp"
+				let newCppFilePath = srcDir + path.sep + input + ".cpp"
 				fs.renameSync(cppFilePath, newCppFilePath)
 			}
 
@@ -83,8 +82,15 @@ export function activate(context: vscode.ExtensionContext) {
 
 			// Update all references in files under "src/"
 			replaceInFile.sync({
-				files: `${preSrcPath}/src/**`,
-				from: fileName,
+				files: `${vscode.workspace.rootPath}/src/**`,
+				from: new RegExp(fileName, "g"),
+				to: newFilename
+			})
+
+			// Update all references in files under "include/"
+			replaceInFile.sync({
+				files: `${vscode.workspace.rootPath}/include/**`,
+				from: new RegExp(fileName, "g"),
 				to: newFilename
 			})
 		})
