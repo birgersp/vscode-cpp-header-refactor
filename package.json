@@ -1,12 +1,12 @@
 {
 	"publisher": "birgersp",
 	"repository": {
-		"url": "https://github.com/birgersp/vscode-cpp-header-renamer"
+		"url": "https://github.com/birgersp/vscode-cpp-header-refactor"
 	},
-	"name": "cpp-header-renamer",
-	"displayName": "C++ Header Renamer",
+	"name": "cpp-header-refactor",
+	"displayName": "C++ Header Refactor",
 	"description": "Rename C++ headers and update references and header guards easily",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"engines": {
 		"vscode": "^1.44.0"
 	},
@@ -14,21 +14,21 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:cpp-header-renamer.renameCppHeader"
+		"onCommand:cpp-header-refactor.renameCppHeader"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "cpp-header-renamer.renameCppHeader",
+				"command": "cpp-header-refactor.renameCppHeader",
 				"title": "Rename C++ header"
 			}
 		],
 		"menus": {
 			"explorer/context": [
 				{
-					"command": "cpp-header-renamer.renameCppHeader",
-					"group": "cppcreator@1"
+					"command": "cpp-header-refactor.renameCppHeader",
+					"group": "cpp@1"
 				}
 			]
 		}

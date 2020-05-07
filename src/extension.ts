@@ -23,7 +23,7 @@ function showErrorMsg(msg: string) {
 
 export function activate(context: vscode.ExtensionContext) {
 
-	let disposable = vscode.commands.registerCommand('cpp-header-renamer.renameCppHeader', (context) => {
+	let disposable = vscode.commands.registerCommand('cpp-header-refactor.renameCppHeader', (context) => {
 
 		if (context == undefined)
 			return
