@@ -3,7 +3,7 @@ import * as path from 'path'
 import * as replaceInFile from 'replace-in-file'
 import * as fs from 'fs'
 
-function createInput(filename): Thenable<string | undefined> {
+function createInput(filename: string): Thenable<string | undefined> {
 
 	var options: vscode.InputBoxOptions = {
 		ignoreFocusOut: false,
