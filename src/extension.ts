@@ -3,12 +3,13 @@ import * as path from 'path'
 import * as replaceInFile from 'replace-in-file'
 import * as fs from 'fs'
 
-function createInput(): Thenable<string | undefined> {
+function createInput(filename): Thenable<string | undefined> {
 
 	var options: vscode.InputBoxOptions = {
 		ignoreFocusOut: false,
 		placeHolder: "New header name ...",
-		prompt: "Type a new header name"
+		prompt: "Type a new header name",
+		value: filename
 	}
 	return vscode.window.showInputBox(options)
 }
@@ -37,13 +38,14 @@ export function activate(context: vscode.ExtensionContext) {
 			return
 		}
 
-		createInput().then(input => {
+		let fileName = path.basename(filePath)
+		let fileNameNoExt = fileName.replace(path.extname(filePath), "")
+		
+		createInput(fileNameNoExt).then(input => {
 
 			if (input == undefined)
 				return
 
-			let fileName = path.basename(filePath)
-			let fileNameNoExt = fileName.replace(path.extname(filePath), "")
 			let newFilename = `${input}${fileExtension}`
 			let newFilePath = `${path.dirname(filePath)}${path.sep}${newFilename}`
 
