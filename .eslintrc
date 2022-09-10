@@ -1,0 +1,23 @@
+{
+	"ignorePatterns": [
+		"*.js",
+		"build/"
+	],
+	"parserOptions": {
+		"project": [
+			"./tsconfig.json"
+		]
+	},
+	"root": true,
+	"parser": "@typescript-eslint/parser",
+	"plugins": [
+		"@typescript-eslint",
+		"import",
+		"typescript-sort-keys"
+	],
+	"rules": { // https://typescript-eslint.io/rules/
+		"@typescript-eslint/strict-boolean-expressions": [
+			"error"
+		]
+	}
+}
