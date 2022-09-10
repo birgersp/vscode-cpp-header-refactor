@@ -1,7 +1,7 @@
-import * as fs from "fs"
+import * as vscode from "vscode"
 import * as path from "path"
 import * as replaceInFile from "replace-in-file"
-import * as vscode from "vscode"
+import * as fs from "fs"
 
 function createInput(filename: string): Thenable<string | undefined> {
 	const options: vscode.InputBoxOptions = {
@@ -72,20 +72,18 @@ async function executeOnPath(filePath: string) {
 	// Rename file
 	fs.renameSync(filePath, newFilePath)
 
-	vscode.workspace.workspaceFolders?.forEach((folder) => {
-		// Update all references in files under "src/"
-		replaceInFile.sync({
-			files: `${folder.uri}/src/**`,
-			from: new RegExp(fileName, "g"),
-			to: newFilename,
-		})
+	// Update all references in files under "src/"
+	replaceInFile.sync({
+		files: `${vscode.workspace.rootPath}/src/**`,
+		from: new RegExp(fileName, "g"),
+		to: newFilename,
+	})
 
-		// Update all references in files under "include/"
-		replaceInFile.sync({
-			files: `${folder.uri}/include/**`,
-			from: new RegExp(fileName, "g"),
-			to: newFilename,
-		})
+	// Update all references in files under "include/"
+	replaceInFile.sync({
+		files: `${vscode.workspace.rootPath}/include/**`,
+		from: new RegExp(fileName, "g"),
+		to: newFilename,
 	})
 }
 
