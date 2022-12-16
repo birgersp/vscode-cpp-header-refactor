@@ -53,20 +53,29 @@ async function executeOnPath(filePath: string) {
 	// Determine sub-directory (e.g. "include/myfolder/")
 	let srcDir: string
 	const fileDir = path.dirname(filePath)
-	const includeDir = vscode.workspace.rootPath + path.sep + "include"
-	if (includeDir == fileDir) {
-		srcDir = vscode.workspace.rootPath + path.sep + "src"
-	} else {
-		const substitution = path.normalize(includeDir + path.sep)
-		const subdir = path.normalize(fileDir).replace(substitution, "")
-		srcDir = vscode.workspace.rootPath + path.sep + "src" + path.sep + subdir
-	}
 
-	// If corresponding .cpp file exists, rename it
-	let cppFilePath = srcDir + path.sep + fileNameNoExt + ".cpp"
+	let cppFilePath = fileDir + path.sep + fileNameNoExt + ".cpp";
 	if (fs.existsSync(cppFilePath)) {
-		let newCppFilePath = srcDir + path.sep + input + ".cpp"
-		fs.renameSync(cppFilePath, newCppFilePath)
+		// same folder as .h/.hpp
+		let newCppFilePath = fileDir + path.sep + input + ".cpp";
+		fs.renameSync(cppFilePath, newCppFilePath);
+	}
+	else {
+		const includeDir = vscode.workspace.rootPath + path.sep + "include"
+		if (includeDir == fileDir) {
+			srcDir = vscode.workspace.rootPath + path.sep + "src"
+		} else {
+			const substitution = path.normalize(includeDir + path.sep)
+			const subdir = path.normalize(fileDir).replace(substitution, "")
+			srcDir = vscode.workspace.rootPath + path.sep + "src" + path.sep + subdir
+		}
+	
+		// If corresponding .cpp file exists, rename it
+		let cppFilePath = srcDir + path.sep + fileNameNoExt + ".cpp"
+		if (fs.existsSync(cppFilePath)) {
+			let newCppFilePath = srcDir + path.sep + input + ".cpp"
+			fs.renameSync(cppFilePath, newCppFilePath)
+		}
 	}
 
 	// Rename file
